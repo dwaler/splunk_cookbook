@@ -16,9 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-tla = node[:splunk][:island][:tla]
+node[:splunk][:island].each do |cust|
 
-if node[:splunk][:island].tla.[:indexer].include?(node[:name])
-  log("Setting up as an indexer for customer #{tla}")
+if cust.indexer.include?(node[:name])
+  log("Setting up as an indexer for customer #{cust.tla} (#{cust.name})")
   dedicated_indexer = true
 end
