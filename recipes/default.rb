@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 node[:splunk][:island].each do |cust|
-  if cust.indexer.include?(node[:name])
+  if cust[:indexer].include?(node[:name])
     log("Setting up as an indexer for customer #{cust.tla} (#{cust.name})")
     dedicated_indexer = true
   end
