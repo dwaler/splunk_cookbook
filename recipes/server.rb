@@ -17,17 +17,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+me = node[:hostname]
+customer = (me.split('-'))[1]
+static_server_configs = node[:splunk][:static_server_configs]
+
 service "splunk" do
   action [ :nothing ]
   supports  :status => true, :start => true, :stop => true, :restart => true
 end
 
 # True for both a Dedicated Search head for Distributed Search and for non-distributed search
-dedicated_search_head = true 
+# dedicated_search_head = true 
 # Only true if we are a dedicated indexer AND are doing a distributed search setup
-dedicated_indexer = false
+# dedicated_indexer = false
 # True only if our public ip matches what we set the master to be
-search_master = (node['splunk']['dedicated_search_master'] == node['ipaddress']) ? true : false
+# search_master = (node['splunk']['dedicated_search_master'] == node['ipaddress']) ? true : false
 
 splunk_cmd = "#{node['splunk']['server_home']}/bin/splunk"
 splunk_package_version = "splunk-#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
@@ -65,22 +69,19 @@ end
 
 if node['splunk']['distributed_search'] == true
   # Add the Distributed Search Template
-  node['splunk']['static_server_configs'] << "distsearch"
+  static_server_configs << "distsearch"
    
   # We are a search head
-  if node.run_list.include?("role[#{node['splunk']['server_role']}]")
-    search_indexers = search(:node, "role:#{node['splunk']['indexer_role']}")
+  if dedicated_search_head == true
+    search_indexers = node[:splunk][:island][customer].indexer
     # Add an outputs.conf.  Search Heads should not be doing any indexing
-    node['splunk']['static_server_configs'] << "outputs"
-  else
-    dedicated_search_head = false
+    static_server_configs << "outputs"
   end
 
   # we are a dedicated indexer
-  if node.run_list.include?("role[#{node['splunk']['indexer_role']}]")
+  if dedicated_indexer == true
     # Find all search heads so we can move their trusted.pem files over
-    search_heads = search(:node, "role:#{node['splunk']['server_role']}")
-    dedicated_indexer = true
+    search_heads = node[:splunk][:island][customer].searchhead
   end
 end
 
@@ -187,7 +188,7 @@ end
 
 if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   # Be sure to deploy the authentication template.
-  node['splunk']['static_server_configs'] << "authentication"
+  static_server_configs << "authentication"
 
   if !node['splunk']['data_bag_key'].empty?
     scripted_auth_creds = Chef::EncryptedDataBagItem.load(node['splunk']['scripted_auth_data_bag_group'], node['splunk']['scripted_auth_data_bag_name'], node['splunk']['data_bag_key'])
@@ -224,7 +225,7 @@ if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   end
 end
 
-node['splunk']['static_server_configs'].each do |cfg|
+static_server_configs.each do |cfg|
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{cfg}.conf.erb"
    	owner "root"
