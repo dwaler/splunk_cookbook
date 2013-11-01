@@ -20,6 +20,10 @@
 me = node[:hostname]
 customer = (me.split('-'))[1]
 static_server_configs = node[:splunk][:static_server_configs]
+dedicated_search_head = node[:splunk][:dedicated_search_head]
+dedicated_indexer     = node[:splunk][:dedicated_indexer]
+search_master         = node[:splunk][:search_master]
+license_master        = node[:splunk][:license_master]
 
 service "splunk" do
   action [ :nothing ]
