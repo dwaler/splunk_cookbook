@@ -19,12 +19,14 @@
 #
 me = node[:hostname]
 customer = (me.split('-'))[1]
-static_server_configs = node[:splunk][:static_server_configs]
-dedicated_search_head = node[:splunk][:dedicated_search_head]
-dedicated_indexer     = node[:splunk][:dedicated_indexer]
-search_master         = node[:splunk][:search_master]
-license_master        = node[:splunk][:license_master]
+static_server_configs  = node[:splunk][:static_server_configs]
+dynamic_server_configs = node[:splunk][:dynamic_server_configs]
+dedicated_search_head  = node[:splunk][:dedicated_search_head]
+dedicated_indexer      = node[:splunk][:dedicated_indexer]
+search_master          = node[:splunk][:search_master]
+license_master         = node[:splunk][:license_master]
 
+log("Working with static configs #{static_server_configs} and dynamic configs #{dynamic_server_configs}")
 service "splunk" do
   action [ :nothing ]
   supports  :status => true, :start => true, :stop => true, :restart => true
@@ -245,7 +247,7 @@ static_server_configs.each do |cfg|
   end
 end
 
-node['splunk']['dynamic_server_configs'].each do |cfg|
+dynamic_server_configs.each do |cfg|
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
    	owner "root"
