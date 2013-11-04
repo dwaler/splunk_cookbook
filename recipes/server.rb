@@ -247,15 +247,16 @@ static_server_configs.each do |cfg|
   end
 end
 
-dynamic_server_configs.each do |cfg|
-  template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
-   	source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
-   	owner "root"
-   	group "root"
-   	mode "0640"
-    notifies :restart, resources(:service => "splunk")
-   end
-end
+log("Dynamic configs: #{dynamic_server_configs}")
+#dynamic_server_configs.each do |cfg|
+  #template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
+   	#source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
+   	#owner "root"
+   	#group "root"
+   	#mode "0640"
+    #notifies :restart, resources(:service => "splunk")
+   #end
+#end
 
 
 template "/etc/init.d/splunk" do
