@@ -19,6 +19,8 @@
 #
 me = node[:hostname]
 customer = (me.split('-'))[1]
+static_server_configs  = node[:splunk][:static_server_configs]
+dynamic_server_configs = node[:splunk][:dynamic_server_configs]
 dedicated_search_head  = node[:splunk][:dedicated_search_head]
 dedicated_indexer      = node[:splunk][:dedicated_indexer]
 search_master          = node[:splunk][:search_master]
@@ -72,14 +74,14 @@ end
 
 if node['splunk']['distributed_search'] == true
   # Add the Distributed Search Template
-  node.default[:splunk][:static_server_configs].push("distsearch")
-  log("We are now #{node[:splunk][:static_server_configs]}")
+  static_server_configs.push("distsearch")
+  log("We are now #{static_server_configs}")
    
   # We are a search head
   if dedicated_search_head == true
     search_indexers = node[:splunk][:island][customer].indexer
     # Add an outputs.conf.  Search Heads should not be doing any indexing
-    node.default[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "outputs" ]
+    static_server_configs.push("outputs")
   end
 
   # we are a dedicated indexer
@@ -192,7 +194,7 @@ end
 
 if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   # Be sure to deploy the authentication template.
-  node.default[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "authentication" ]
+  static_server_configs.push("authentication")
 
   if !node['splunk']['data_bag_key'].empty?
     scripted_auth_creds = Chef::EncryptedDataBagItem.load(node['splunk']['scripted_auth_data_bag_group'], node['splunk']['scripted_auth_data_bag_name'], node['splunk']['data_bag_key'])
@@ -233,7 +235,7 @@ end
 #log("Making sure #{node[:splunk][:static_server_configs]} is an array")
 #node[:splunk][:static_server_configs].to_a
 
-node[:splunk][:static_server_configs].flatten.each do |cfg|
+static_server_configs.flatten.each do |cfg|
   log("Creating static server config file #{cfg}")
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{cfg}.conf.erb"
@@ -250,7 +252,7 @@ node[:splunk][:static_server_configs].flatten.each do |cfg|
   end
 end
 
-node[:splunk][:dynamic_server_configs].each do |cfg|
+dynamic_server_configs.flatten.each do |cfg|
   log("Creating dynamic server config file #{cfg}")
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
