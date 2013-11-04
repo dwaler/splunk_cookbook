@@ -72,13 +72,13 @@ end
 
 if node['splunk']['distributed_search'] == true
   # Add the Distributed Search Template
-  node[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "distsearch" ]
+  node.default[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "distsearch" ]
    
   # We are a search head
   if dedicated_search_head == true
     search_indexers = node[:splunk][:island][customer].indexer
     # Add an outputs.conf.  Search Heads should not be doing any indexing
-    node[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "outputs" ]
+    node.default[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "outputs" ]
   end
 
   # we are a dedicated indexer
@@ -191,7 +191,7 @@ end
 
 if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   # Be sure to deploy the authentication template.
-  node[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "authentication" ]
+  node.default[:splunk][:static_server_configs] = [ node[:splunk][:static_server_configs], "authentication" ]
 
   if !node['splunk']['data_bag_key'].empty?
     scripted_auth_creds = Chef::EncryptedDataBagItem.load(node['splunk']['scripted_auth_data_bag_group'], node['splunk']['scripted_auth_data_bag_name'], node['splunk']['data_bag_key'])
