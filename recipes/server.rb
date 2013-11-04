@@ -73,6 +73,7 @@ end
 if node['splunk']['distributed_search'] == true
   # Add the Distributed Search Template
   node.default[:splunk][:static_server_configs].push("distsearch")
+  log("We are now #{node[:splunk][:static_server_configs]}")
    
   # We are a search head
   if dedicated_search_head == true
