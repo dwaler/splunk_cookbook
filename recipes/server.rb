@@ -233,7 +233,7 @@ end
 #log("Making sure #{node[:splunk][:static_server_configs]} is an array")
 #node[:splunk][:static_server_configs].to_a
 
-node[:splunk][:static_server_configs].to_a.each do |cfg|
+node[:splunk][:static_server_configs].flatten.each do |cfg|
   log("Creating static server config file #{cfg}")
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{cfg}.conf.erb"
