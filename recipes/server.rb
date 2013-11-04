@@ -26,7 +26,7 @@ dedicated_indexer      = node[:splunk][:dedicated_indexer]
 search_master          = node[:splunk][:search_master]
 license_master         = node[:splunk][:license_master]
 
-log("Working with static configs #{static_server_configs} and dynamic configs #{dynamic_server_configs}")
+log("Working with static configs #{node[:splunk][:static_server_configs]} and dynamic configs #{node[:splunk][:dynamic_server_configs]}")
 service "splunk" do
   action [ :nothing ]
   supports  :status => true, :start => true, :stop => true, :restart => true
