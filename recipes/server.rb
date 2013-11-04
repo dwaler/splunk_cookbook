@@ -26,7 +26,7 @@ dedicated_indexer      = node[:splunk][:dedicated_indexer]
 search_master          = node[:splunk][:search_master]
 license_master         = node[:splunk][:license_master]
 
-log("Working with static configs #{node[:splunk][:static_server_configs]} and dynamic configs #{node[:splunk][:dynamic_server_configs]}")
+log("Working with static configs #{static_server_configs} and dynamic configs #{dynamic_server_configs}")
 service "splunk" do
   action [ :nothing ]
   supports  :status => true, :start => true, :stop => true, :restart => true
@@ -188,7 +188,7 @@ end
 if dedicated_indexer == true || node['splunk']['distributed_search'] == false
   execute "Enabling Receiver Port #{node['splunk']['receiver_port']}" do 
     command "#{splunk_cmd} enable listen #{node['splunk']['receiver_port']} -auth #{node['splunk']['auth']}"
-    not_if "grep splunktcp:#{node['splunk']['receiver_port']} #{node['splunk']['server_home']}/etc/system/local/inputs.conf"
+    not_if "netstat -anp | grep LISTEN | grep -c \:9997"
   end
 end
 
