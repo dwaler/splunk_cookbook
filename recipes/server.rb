@@ -26,7 +26,6 @@ dedicated_indexer      = node[:splunk][:dedicated_indexer]
 search_master          = node[:splunk][:search_master]
 license_master         = node[:splunk][:license_master]
 
-log("Working with static configs #{static_server_configs} and dynamic configs #{dynamic_server_configs}")
 service "splunk" do
   action [ :nothing ]
   supports  :status => true, :start => true, :stop => true, :restart => true
@@ -232,6 +231,7 @@ if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
 end
 
 static_server_configs.each do |cfg|
+  log("Creating static server config file #{cfg}")
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{cfg}.conf.erb"
    	owner "root"
@@ -247,16 +247,16 @@ static_server_configs.each do |cfg|
   end
 end
 
-log("Dynamic configs: #{dynamic_server_configs}")
-#dynamic_server_configs.each do |cfg|
-  #template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
-   	#source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
-   	#owner "root"
-   	#group "root"
-   	#mode "0640"
-    #notifies :restart, resources(:service => "splunk")
-   #end
-#end
+dynamic_server_configs.each do |cfg|
+  log("Creating dynamic server config file #{cfg}")
+  template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
+   	source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
+   	owner "root"
+   	group "root"
+   	mode "0640"
+    notifies :restart, resources(:service => "splunk")
+   end
+end
 
 
 template "/etc/init.d/splunk" do
