@@ -228,6 +228,10 @@ if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   end
 end
 
+log("We have #{node[:splunk][:static_server_configs].count} config files to process")
+log("Making sure #{node[:splunk][:static_server_configs]} is an array")
+node[:splunk][:static_server_configs].to_a
+
 node[:splunk][:static_server_configs].each do |cfg|
   log("Creating static server config file #{cfg}")
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
