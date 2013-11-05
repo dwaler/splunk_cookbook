@@ -98,6 +98,7 @@ template "#{node['splunk']['server_home']}/etc/splunk-launch.conf" do
     group "root"
 end
 
+log("We use SSL: #{node['splunk']['use_ssl']}, DSH: #{dedicated_search_head}")
 if node['splunk']['use_ssl'] == true && dedicated_search_head == true
   
   directory "#{node['splunk']['server_home']}/ssl" do
