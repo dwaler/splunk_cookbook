@@ -303,14 +303,18 @@ if node['splunk']['distributed_search'] == true
         if File.exists?("#{node['splunk']['server_home']}/etc/auth/distServerKeys/trusted.pem")
           trustedPem = IO.read("#{node['splunk']['server_home']}/etc/auth/distServerKeys/trusted.pem")
           if node['splunk']['trustedPem'] == nil || node['splunk']['trustedPem'] != trustedPem
-            node['splunk']['trustedPem'] = trustedPem
-            node.save
+            node.default['splunk']['trustedPem'] = trustedPem
+            unless Chef::Config[:solo]
+              node.save
+            end
           end
         end
 
         if node['splunk']['splunkServerName'] == nil || node['splunk']['splunkServerName'] != splunk_server_name
-          node['splunk']['splunkServerName'] = splunk_server_name
-          node.save
+          node.default['splunk']['splunkServerName'] = splunk_server_name
+          unless Chef::Config[:solo]
+            node.save
+          end
         end
       end
     end
