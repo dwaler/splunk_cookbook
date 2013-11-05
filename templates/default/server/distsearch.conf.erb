@@ -1,6 +1,6 @@
 <% if @dedicated_search_head == true -%>
 [distributedSearch]
-servers = <% @search_indexers.sort.each_with_index do |server, index| -%><%= server['ipaddress'] %>:8089<% if @search_indexers.size-1 > index -%>,<% end -%><% end -%>
+servers = <% @search_indexers.sort.each_with_index do |server, index| -%><%= server %>:8089<% if @search_indexers.size-1 > index -%>,<% end -%><% end -%>
 
 [tokenExchKeys]
 certDir = $SPLUNK_HOME/etc/auth/distServerKeys
