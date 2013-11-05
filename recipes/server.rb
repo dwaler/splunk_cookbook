@@ -153,7 +153,9 @@ if node['splunk']['ssl_forwarding'] == true
       inputsPass = `grep -m 1 "password = " #{node['splunk']['server_home']}/etc/system/local/inputs.conf | sed 's/password = //'`
       if inputsPass.match(/^\$1\$/) && inputsPass != node['splunk']['inputsSSLPass']
         node.default['splunk']['inputsSSLPass'] = inputsPass
-        node.save
+        unless Chef::Config[:solo] 
+          node.save
+        end
       end
 
       if node['splunk']['distributed_search'] == true && dedicated_search_head == true 
@@ -161,7 +163,9 @@ if node['splunk']['ssl_forwarding'] == true
         
           if outputsPass.match(/^\$1\$/) && outputsPass != node['splunk']['outputsSSLPass']
             node.default['splunk']['outputsSSLPass'] = outputsPass
-            node.save
+            unless Chef::Config[:solo]
+              node.save
+            end
           end
         end
     end
