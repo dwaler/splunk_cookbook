@@ -234,7 +234,7 @@ if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   end
 end
 
-static_server_configs.each do |cfg|
+static_server_configs.flatten.each do |cfg|
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{cfg}.conf.erb"
    	owner "root"
@@ -250,7 +250,7 @@ static_server_configs.each do |cfg|
   end
 end
 
-dynamic_server_configs.each do |cfg|
+dynamic_server_configs.flatten.each do |cfg|
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{node['splunk']['server_config_folder']}/#{cfg}.conf.erb"
    	owner "root"
