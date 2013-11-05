@@ -75,7 +75,6 @@ end
 if node['splunk']['distributed_search'] == true
   # Add the Distributed Search Template
   static_server_configs = [ static_server_configs, "distsearch" ]
-  log("We are now #{static_server_configs}")
    
   # We are a search head
   if dedicated_search_head == true
@@ -153,7 +152,7 @@ if node['splunk']['ssl_forwarding'] == true
     block do
       inputsPass = `grep -m 1 "password = " #{node['splunk']['server_home']}/etc/system/local/inputs.conf | sed 's/password = //'`
       if inputsPass.match(/^\$1\$/) && inputsPass != node['splunk']['inputsSSLPass']
-        node['splunk']['inputsSSLPass'] = inputsPass
+        node.default['splunk']['inputsSSLPass'] = inputsPass
         node.save
       end
 
@@ -161,7 +160,7 @@ if node['splunk']['ssl_forwarding'] == true
           outputsPass = `grep -m 1 "sslPassword = " #{node['splunk']['server_home']}/etc/system/local/outputs.conf | sed 's/sslPassword = //'`
         
           if outputsPass.match(/^\$1\$/) && outputsPass != node['splunk']['outputsSSLPass']
-            node['splunk']['outputsSSLPass'] = outputsPass
+            node.default['splunk']['outputsSSLPass'] = outputsPass
             node.save
           end
         end
