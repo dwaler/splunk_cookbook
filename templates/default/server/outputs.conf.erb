@@ -8,7 +8,7 @@ server=<% @search_indexers.sort.each_with_index do |server, index| -%><%= server
 
 <% @search_indexers.sort.each do |server| -%>
 
-[tcpout-server://<%= server['ipaddress']%>:<%= node['splunk']['receiver_port']%>]
+[tcpout-server://<%= server %>:<%= node['splunk']['receiver_port']%>]
 <% if node['splunk']['ssl_forwarding'] == true -%>
 sslRootCAPath = <%= node['splunk']['server_home']%>/etc/auth/forwarders/<%= node['splunk']['ssl_forwarding_cacert'] %>
 sslCertPath = <%= node['splunk']['server_home']%>/etc/auth/forwarders/<%= node['splunk']['ssl_forwarding_servercert'] %>
