@@ -21,9 +21,6 @@ Vagrant.configure("2") do |config|
         },
         :use_ssl  => 'true',
         :dedicated_search_head => 'true'
-      },
-      :ec2 => {
-        :instance_id       => 'sbpasplunk-sbp-berkshelf'
       }       
     }
 
