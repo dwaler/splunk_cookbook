@@ -41,29 +41,7 @@ end
 splunk_cmd = "#{node['splunk']['server_home']}/bin/splunk"
 splunk_package_version = "splunk-#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
 
-splunk_file = splunk_package_version + 
-  case node['platform']
-  when "centos","redhat","fedora"
-    if node['kernel']['machine'] == "x86_64"
-      "-linux-2.6-x86_64.rpm"
-    else
-      ".i386.rpm"
-    end
-  when "debian","ubuntu"
-    if node['kernel']['machine'] == "x86_64"
-      "-linux-2.6-amd64.deb"
-    else
-      "-linux-2.6-intel.deb"
-    end
-  end
-
-remote_file "#{Chef::Config['file_cache_path']}/#{splunk_file}" do
-  source "#{node['splunk']['server_root']}/#{node['splunk']['server_version']}/splunk/linux/#{splunk_file}"
-  action :create_if_missing
-end
-
 package splunk_package_version do
-  source "#{Chef::Config['file_cache_path']}/#{splunk_file}"
   case node['platform']
   when "centos","redhat","fedora"
     provider Chef::Provider::Package::Rpm
