@@ -41,7 +41,7 @@ end
 splunk_cmd = "#{node['splunk']['server_home']}/bin/splunk"
 splunk_package_version = "splunk-#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
 
-package splunk do
+package "splunk" do
   case node['platform']
   when "centos","redhat","fedora"
     provider Chef::Provider::Package::Rpm
