@@ -41,13 +41,14 @@ end
 splunk_cmd = "#{node['splunk']['server_home']}/bin/splunk"
 splunk_package_version = "splunk-#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
 
-package splunk_package_version do
+package splunk do
   case node['platform']
   when "centos","redhat","fedora"
     provider Chef::Provider::Package::Rpm
   when "debian","ubuntu"
     provider Chef::Provider::Package::Dpkg
   end
+  version "#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
 end
 
 if node['splunk']['distributed_search'] == true
