@@ -283,7 +283,7 @@ if node['splunk']['distributed_search'] == true
     end
 
     cookbook_file "Splunk.License.lic" do
-       path "/opt/splunk/etc/licenses/enterprise"
+       path "/opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
        owner "splunk"
        group "splunk"
        mode  0600
