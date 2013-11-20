@@ -278,7 +278,7 @@ if node['splunk']['distributed_search'] == true
     # cookbook name of this resource
     execute "Activating license" do
       name "activate_license"
-      command "#{splunk_cmd} add licenses /opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
+      command "#{splunk_cmd} login -auth admin:#{splunk_password} && #{splunk_cmd} add licenses /opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
       action :nothing
     end
 
