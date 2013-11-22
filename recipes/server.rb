@@ -267,7 +267,7 @@ end
 
 if node['splunk']['distributed_search'] == true
   # If we are not the license master.. we need to link up to the license master for our license information
-  if license_master == false
+  if license_master != me
     execute "Linking license to license master" do
       command "#{splunk_cmd} edit licenser-localslave -master_uri 'https://#{node['splunk']['license_master']}:8089' -auth #{node['splunk']['auth']}"
       not_if "grep \"master_uri = https://#{node['splunk']['license_master']}:8089\" #{node['splunk']['server_home']}/etc/system/local/server.conf"
@@ -276,11 +276,11 @@ if node['splunk']['distributed_search'] == true
 
     # and on the license master, we install the license file (which comes from the wrapper cookbook, which needs to override the
     # cookbook name of this resource
-    execute "Activating license" do
-      name "activate_license"
-      command "#{splunk_cmd} login -auth admin:#{splunk_password} && #{splunk_cmd} add licenses /opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
-      action :nothing
-    end
+#    execute "Activating license" do
+#      name "activate_license"
+#      command "#{splunk_cmd} login -auth admin:#{splunk_password} && #{splunk_cmd} add licenses /opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
+#      action :nothing
+#    end
 
     cookbook_file "Splunk.License.lic" do
        path "/opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
@@ -288,7 +288,7 @@ if node['splunk']['distributed_search'] == true
        group "splunk"
        mode  0600
        notifies :restart, "service[splunk]", :delayed
-       notifies :run, "execute[activate_license]", :delayed
+#       notifies :run, "execute[activate_license]", :delayed
     end
 
   end
