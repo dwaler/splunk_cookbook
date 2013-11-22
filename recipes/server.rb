@@ -288,7 +288,7 @@ if node['splunk']['distributed_search'] == true
        group "splunk"
        mode  0600
        notifies :restart, "service[splunk]", :delayed
-       notifies :run, "execute[activate_license]", :immediate
+       notifies :run, "execute[activate_license]", :delayed
     end
 
   end
