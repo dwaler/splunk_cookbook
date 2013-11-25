@@ -11,7 +11,7 @@ privateKey = private.pem
 
 <% if @dedicated_indexer == true -%>
 <% @search_heads.sort.each_with_index do |server, index| -%>
-[searchhead:<%= server ]%>]
+[searchhead:<%= server %>]
 mounted_bundles = false
 <% end -%>
 <% end -%>
