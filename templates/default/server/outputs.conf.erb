@@ -4,7 +4,7 @@ compressed = true
 disabled = false
 
 [tcpout:splunkssl]
-server=<% @search_indexers.sort.each_with_index do |server, index| -%><%= server %>:<%= node['splunk']['receiver_port']%><% if @search_indexers.size-1 > index -%>,<% end -%><% end -%>
+server = <% @search_indexers.sort.each_with_index do |server, index| -%><%= server %>:<%= node['splunk']['receiver_port']%><% if @search_indexers.size-1 > index -%>,<% end -%><% end -%>
 
 <% @search_indexers.sort.each do |server| -%>
 
