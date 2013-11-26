@@ -24,13 +24,16 @@ default['splunk']['dashboards_to_deploy']      = ["apache_http","useragents"]
 default['splunk']['server_config_folder']      = "prodlike"
 
 # Static Server Configs (Configs that match regardless of environment -Dev,QA,PL,Prod,Etc)
-default['splunk']['static_server_configs']     = ["web","transforms","limits","indexes"]
+default['splunk']['static_server_configs']     = ["web","transforms","limits","indexes", "server"]
 
 # Dynamic Server Configs (Configs that change per environment)
 default['splunk']['dynamic_server_configs']    = ["inputs","props"]
 
 #configuration values for forwarders
 default['splunk']['receiver_port']             = "9997"
+
+#configuration for indexer clusters
+default['splunk']['replication_port']          = "9998"
 
 #Change the default admin password (Username::Password)
 default['splunk']['auth']                      = "admin:SomePassword123"

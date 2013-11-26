@@ -129,8 +129,16 @@ if node['splunk']['ssl_forwarding'] == true
   # SSL passwords are encrypted when splunk reads the file.  We need to save the password.
   # We need to save the password if it has changed so we don't keep restarting splunk.
   # Splunk encrypted passwords always start with $1$
-  ruby_block "Saving Encrypted Password (inputs.conf/outputs.conf)" do
+  ruby_block "Saving Encrypted Password (server.conf/inputs.conf/outputs.conf)" do
     block do
+      sslKeyPass = `grep -m 1 "sslKeysfilePassword = " #{node['splunk']['server_home']}/etc/system/local/server.conf | sed 's/sslKeysfilePassword = //'`
+      if sslKeyPass.match(/^\$1\$/) && sslKeyPass != node['splunk']['sslKeyPass']
+        node.default['splunk']['sslKeyPass'] = sslKeyPass
+        unless Chef::Config[:solo]
+          node.save
+        end
+      end
+
       inputsPass = `grep -m 1 "password = " #{node['splunk']['server_home']}/etc/system/local/inputs.conf | sed 's/password = //'`
       if inputsPass.match(/^\$1\$/) && inputsPass != node['splunk']['inputsSSLPass']
         node.default['splunk']['inputsSSLPass'] = inputsPass
@@ -140,15 +148,15 @@ if node['splunk']['ssl_forwarding'] == true
       end
 
       if node['splunk']['distributed_search'] == true && dedicated_search_head == true 
-          outputsPass = `grep -m 1 "sslPassword = " #{node['splunk']['server_home']}/etc/system/local/outputs.conf | sed 's/sslPassword = //'`
+        outputsPass = `grep -m 1 "sslPassword = " #{node['splunk']['server_home']}/etc/system/local/outputs.conf | sed 's/sslPassword = //'`
         
-          if outputsPass.match(/^\$1\$/) && outputsPass != node['splunk']['outputsSSLPass']
-            node.default['splunk']['outputsSSLPass'] = outputsPass
-            unless Chef::Config[:solo]
-              node.save
-            end
+        if outputsPass.match(/^\$1\$/) && outputsPass != node['splunk']['outputsSSLPass']
+          node.default['splunk']['outputsSSLPass'] = outputsPass
+          unless Chef::Config[:solo]
+            node.save
           end
         end
+      end
     end
   end
 end
@@ -225,7 +233,8 @@ static_server_configs.flatten.each do |cfg|
         :search_heads => search_heads,
         :search_indexers => search_indexers,
         :dedicated_search_head => dedicated_search_head,
-        :dedicated_indexer => dedicated_indexer
+        :dedicated_indexer => dedicated_indexer,
+        :customer => customer
       )
     notifies :restart, resources(:service => "splunk")
   end
@@ -267,31 +276,19 @@ end
 
 if node['splunk']['distributed_search'] == true
   # If we are not the license master.. we need to link up to the license master for our license information
-  if license_master == false
-    log("We are not license master") 
+  if license_master == true
     execute "Linking license to license master" do
       command "#{splunk_cmd} edit licenser-localslave -master_uri 'https://#{node['splunk']['license_master']}:8089' -auth #{node['splunk']['auth']}"
       not_if "grep \"master_uri = https://#{node['splunk']['license_master']}:8089\" #{node['splunk']['server_home']}/etc/system/local/server.conf"
     end
   else
-    log("We are license master")
-    # and on the license master, we install the license file (which comes from the wrapper cookbook, which needs to override the
-    # cookbook name of this resource
-#    execute "Activating license" do
-#      name "activate_license"
-#      command "#{splunk_cmd} login -auth admin:#{splunk_password} && #{splunk_cmd} add licenses /opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
-#      action :nothing
-#    end
-
     cookbook_file "Splunk.License.lic" do
        path "/opt/splunk/etc/licenses/enterprise/Splunk.License.lic"
        owner "splunk"
        group "splunk"
        mode  0600
        notifies :restart, "service[splunk]", :delayed
-#       notifies :run, "execute[activate_license]", :delayed
     end
-
   end
 
   if dedicated_search_head == true
