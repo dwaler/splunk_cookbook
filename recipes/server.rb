@@ -177,12 +177,12 @@ execute "Changing Admin Password" do
 end
 
 # Enable receiving ports only if we are a standalone installation or a dedicated_indexer
-if dedicated_indexer == true || node['splunk']['distributed_search'] == false
-  execute "Enabling Receiver Port #{node['splunk']['receiver_port']}" do 
-    command "#{splunk_cmd} enable listen #{node['splunk']['receiver_port']} -auth #{node['splunk']['auth']}"
-    not_if "netstat -anp | grep LISTEN | grep -c \:9997"
-  end
-end
+#if dedicated_indexer == true || node['splunk']['distributed_search'] == false
+#  execute "Enabling Receiver Port #{node['splunk']['receiver_port']}" do 
+#    command "#{splunk_cmd} enable listen #{node['splunk']['receiver_port']} -auth #{node['splunk']['auth']}"
+#    not_if "netstat -anp | grep LISTEN | grep -c \:9997"
+#  end
+#end
 
 if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
   # Be sure to deploy the authentication template.
