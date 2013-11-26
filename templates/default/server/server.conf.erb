@@ -24,16 +24,16 @@ stack_id = free
 
 <%- if node[:splunk][:dedicated_indexer] %> 
 [replication_port://<%= node[:splunk][:replication_port] %>]
+<%- end %>
 
 [clustering]
-<%-   if node[:splunk][:search_master] == false %>
+<%- if node[:splunk][:search_master] == false %>
 master_uri = https://<%= (node[:splunk][:island][@customer][:clustermaster])[0] %>:8089
 mode = slave
-<%-   else %>
+<%- else %>
 mode = master
 replication_factor = 2
 search_factor = 2
-<%-   end %>
 <%- end %>
 pass4SymmKey = <%= (node[:splunk][:auth].split(':'))[1] %>
 
