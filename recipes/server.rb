@@ -277,7 +277,7 @@ end
 
 if node['splunk']['distributed_search'] == true
   # If we are not the license master.. we need to link up to the license master for our license information
-  if license_master == true
+  if license_master == false
     execute "Linking license to license master" do
       command "#{splunk_cmd} edit licenser-localslave -master_uri 'https://#{node['splunk']['license_master']}:8089' -auth #{node['splunk']['auth']}"
       not_if "grep \"master_uri = https://#{node['splunk']['license_master']}:8089\" #{node['splunk']['server_home']}/etc/system/local/server.conf"
