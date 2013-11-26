@@ -27,7 +27,7 @@ stack_id = free
 
 <%-   if node[:splunk][:search_master] == false %>
 [clustering]
-master_uri = https://<%= node[:splunk][:island][@customer][:clustermaster] %>:8089
+master_uri = https://<%= (node[:splunk][:island][@customer][:clustermaster])[0] %>:8089
 mode = slave
 pass4SymmKey = <%= (node[:splunk][:auth].split(':'))[1] %>
 <%-   end %>
