@@ -234,6 +234,7 @@ static_server_configs.flatten.each do |cfg|
         :search_indexers => search_indexers,
         :dedicated_search_head => dedicated_search_head,
         :dedicated_indexer => dedicated_indexer,
+        :license_master => license_master,
         :customer => customer
       )
     notifies :restart, resources(:service => "splunk")
