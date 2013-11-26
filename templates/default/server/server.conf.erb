@@ -35,5 +35,5 @@ pass4SymmKey = <%= (node[:splunk][:auth].split(':'))[1] %>
 
 <%- if @license_master == false %>
 [license]
-master_uri = https://<%= node[:splunk][:island][@customer][:license_master] %>:8089
+master_uri = https://<%= node[:splunk][:island][@customer][:licensemaster] %>:8089
 <%- end %>
