@@ -132,7 +132,7 @@ if node['splunk']['ssl_forwarding'] == true
   ruby_block "Saving Encrypted Password (server.conf/inputs.conf/outputs.conf)" do
     block do
       sslKeyPass = `grep -m 1 "sslKeysfilePassword = " #{node['splunk']['server_home']}/etc/system/local/server.conf | sed 's/sslKeysfilePassword = //'`
-      if sslKeyPass.match(/^\$1\$/) && sslKeyPass != node['splunk']['sslKeyPass']
+      if sslKeyPass != node['splunk']['sslKeyPass']
         node.default['splunk']['sslKeyPass'] = sslKeyPass
         unless Chef::Config[:solo]
           node.save
