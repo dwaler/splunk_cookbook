@@ -3,7 +3,7 @@ default['splunk']['cookbook_name']             = "splunk"
 
 #directories
 default['splunk']['server_home']               = "/opt/splunk"
-default['splunk']['db_directory']              = "/volr/splunk"
+default['splunk']['db_directory']              = "/san/splunk"
 
 #web config
 default['splunk']['web_server_port']           = "8000" # Change to 443/other if you're doing ssl
