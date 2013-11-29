@@ -324,7 +324,7 @@ if node['splunk']['distributed_search'] == true
     sbp_disk_manage "splunk" do
       device "/dev/xvde"
       mount_point node[:splunk][:db_directory]
-      filesystem ext4
+      filesystem "ext4"
       mount_options "rw,barrier=1,errors=remount-ro"
       user "splunk"
       group "splunk"
