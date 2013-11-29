@@ -34,6 +34,7 @@ default['splunk']['receiver_port']             = "9997"
 
 #configuration for indexer clusters
 default['splunk']['replication_port']          = "9998"
+default['splunk']['diskofferingid']            = "60ea5c68-a974-4198-82f9-2ca50d9f5d8c"	# cust-xlarge (100GB)
 
 #Change the default admin password (Username::Password)
 default['splunk']['auth']                      = "admin:SomePassword123"

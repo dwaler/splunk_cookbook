@@ -132,7 +132,7 @@ if node['splunk']['ssl_forwarding'] == true
   ruby_block "Saving Encrypted Password (server.conf/inputs.conf/outputs.conf)" do
     block do
       sslKeyPass = `grep -m 1 "sslKeysfilePassword = " #{node['splunk']['server_home']}/etc/system/local/server.conf | sed 's/sslKeysfilePassword = //'`
-      if sslKeyPass != node['splunk']['sslKeyPass']
+      if sslKeyPass.match(/^\$1\$/) && sslKeyPass != node['splunk']['sslKeyPass']
         node.default['splunk']['sslKeyPass'] = sslKeyPass
         unless Chef::Config[:solo]
           node.save
@@ -315,6 +315,23 @@ if node['splunk']['distributed_search'] == true
   end
 
   if dedicated_indexer == true
+    # Create data disks
+    cs_disk splunk do
+      offering node[:splunk][:diskofferingid]
+      device /dev/xvde
+    end
+
+    sbp_disk_manage splunk do
+      device /dev/xvde
+      mount_point node[:splunk][:db_directory]
+      filesystem ext4
+      mount_options "rw,barrier=1,errors=remount-ro"
+      user "splunk"
+      group "splunk"
+      mode 00775
+      action [:partition, :format, :mount]
+    end
+
     search_heads.each do |server| 
       if server['splunk'] != nil && server['splunk']['trustedPem'] != nil && server['splunk']['splunkServerName'] != nil
         directory "#{node['splunk']['server_home']}/etc/auth/distServerKeys/#{server['splunk']['splunkServerName']}" do
