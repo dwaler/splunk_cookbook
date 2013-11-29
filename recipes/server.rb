@@ -318,11 +318,11 @@ if node['splunk']['distributed_search'] == true
     # Create data disks
     cs_disk splunk do
       offering node[:splunk][:diskofferingid]
-      device /dev/xvde
+      device "/dev/xvde"
     end
 
     sbp_disk_manage splunk do
-      device /dev/xvde
+      device "/dev/xvde"
       mount_point node[:splunk][:db_directory]
       filesystem ext4
       mount_options "rw,barrier=1,errors=remount-ro"
