@@ -137,6 +137,8 @@ if node['splunk']['ssl_forwarding'] == true
         unless Chef::Config[:solo]
           node.save
         end
+      elsif node['splunk']['sslKeyPass'].nil?
+        node.default['splunk']['sslKeyPass'] = "password"       # Set default if empty
       end
 
       inputsPass = `grep -m 1 "password = " #{node['splunk']['server_home']}/etc/system/local/inputs.conf | sed 's/password = //'`
