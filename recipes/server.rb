@@ -117,7 +117,7 @@ if node['splunk']['ssl_forwarding'] == true
 
   # Copy over the SSL Certs
   [node['splunk']['ssl_forwarding_cacert'],node['splunk']['ssl_forwarding_servercert']].each do |cert|
-    cookbook_file cert do
+    cookbook_file "#{cert}" do
       path "#{node['splunk']['server_home']}/etc/auth/forwarders/#{cert}"
       source "ssl/forwarders/#{cert}"
       owner "root"
