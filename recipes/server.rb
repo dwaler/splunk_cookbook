@@ -130,18 +130,8 @@ if node['splunk']['ssl_forwarding'] == true
   # SSL passwords are encrypted when splunk reads the file.  We need to save the password.
   # We need to save the password if it has changed so we don't keep restarting splunk.
   # Splunk encrypted passwords always start with $1$
-  ruby_block "Saving Encrypted Password (server.conf/inputs.conf/outputs.conf)" do
+  ruby_block "Saving Encrypted Password (inputs.conf/outputs.conf)" do
     block do
-      sslKeyPass = `grep -m 1 "sslKeysfilePassword = " #{node['splunk']['server_home']}/etc/system/local/server.conf | sed 's/sslKeysfilePassword = //'`
-      if sslKeyPass.match(/^\$1\$/) && sslKeyPass != node['splunk']['sslKeyPass']
-        node.default['splunk']['sslKeyPass'] = sslKeyPass
-        unless Chef::Config[:solo]
-          node.save
-        end
-      elsif node['splunk']['sslKeyPass'].nil?
-        node.default['splunk']['sslKeyPass'] = "password"       # Set default if empty
-      end
-
       inputsPass = `grep -m 1 "password = " #{node['splunk']['server_home']}/etc/system/local/inputs.conf | sed 's/password = //'`
       if inputsPass.match(/^\$1\$/) && inputsPass != node['splunk']['inputsSSLPass']
         node.default['splunk']['inputsSSLPass'] = inputsPass
@@ -160,6 +150,21 @@ if node['splunk']['ssl_forwarding'] == true
           end
         end
       end
+    end
+  end
+end
+
+# Read sslKeyPass from server.conf
+ruby_block "Saving Encrypted Password (server.conf/inputs.conf/outputs.conf)" do
+  block do
+    sslKeyPass = `grep -m 1 "sslKeysfilePassword = " #{node['splunk']['server_home']}/etc/system/local/server.conf | sed 's/sslKeysfilePassword = //'`
+    if sslKeyPass.match(/^\$1\$/) && sslKeyPass != node['splunk']['sslKeyPass']
+      node.default['splunk']['sslKeyPass'] = sslKeyPass
+      unless Chef::Config[:solo]
+        node.save
+      end
+    elsif node['splunk']['sslKeyPass'].nil?
+      node.default['splunk']['sslKeyPass'] = "password"       # Set default if empty
     end
   end
 end
