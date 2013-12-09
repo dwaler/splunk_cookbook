@@ -31,25 +31,11 @@ service "splunk" do
   supports  :status => true, :start => true, :stop => true, :restart => true
 end
 
-# True for both a Dedicated Search head for Distributed Search and for non-distributed search
-# dedicated_search_head = true 
-# Only true if we are a dedicated indexer AND are doing a distributed search setup
-# dedicated_indexer = false
-# True only if our public ip matches what we set the master to be
-# search_master = (node['splunk']['dedicated_search_master'] == node['ipaddress']) ? true : false
-
 splunk_cmd = "#{node['splunk']['server_home']}/bin/splunk"
 splunk_package_version = "splunk-#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
 
 package "splunk" do
   action :install
-#  case node['platform']
-#  when "centos","redhat","fedora"
-#    provider Chef::Provider::Package::Rpm
-#  when "debian","ubuntu"
-#    provider Chef::Provider::Package::Dpkg
-#  end
-#  version "#{node['splunk']['server_version']}-#{node['splunk']['server_build']}"
 end
 
 if node['splunk']['distributed_search'] == true
@@ -78,9 +64,7 @@ template "#{node['splunk']['server_home']}/etc/splunk-launch.conf" do
     group "root"
 end
 
-log("We use SSL: #{node['splunk']['use_ssl']}, DSH: #{dedicated_search_head}")
 if node['splunk']['use_ssl'] == true && dedicated_search_head == true
-  
   directory "#{node['splunk']['server_home']}/ssl" do
     owner "root"
     group "root"
@@ -106,7 +90,6 @@ if node['splunk']['use_ssl'] == true && dedicated_search_head == true
 end
 
 if node['splunk']['ssl_forwarding'] == true
-
   # Create the SSL Cert Directory for the Forwarders
   directory "#{node['splunk']['server_home']}/etc/auth/forwarders" do
     owner "root"
@@ -184,53 +167,6 @@ execute "Changing Admin Password" do
   end
 end
 
-# Enable receiving ports only if we are a standalone installation or a dedicated_indexer
-#if dedicated_indexer == true || node['splunk']['distributed_search'] == false
-#  execute "Enabling Receiver Port #{node['splunk']['receiver_port']}" do 
-#    command "#{splunk_cmd} enable listen #{node['splunk']['receiver_port']} -auth #{node['splunk']['auth']}"
-#    not_if "netstat -anp | grep LISTEN | grep -c \:9997"
-#  end
-#end
-
-if node['splunk']['scripted_auth'] == true && dedicated_search_head == true
-  # Be sure to deploy the authentication template.
-  static_server_configs = [ static_server_configs, "authentication" ]
-
-  if !node['splunk']['data_bag_key'].empty?
-    scripted_auth_creds = Chef::EncryptedDataBagItem.load(node['splunk']['scripted_auth_data_bag_group'], node['splunk']['scripted_auth_data_bag_name'], node['splunk']['data_bag_key'])
-  else
-    scripted_auth_creds = { "user" => "", "password" => ""}
-  end
-
-  directory "#{node['splunk']['server_home']}/#{node['splunk']['scripted_auth_directory']}" do
-    recursive true
-    action :create
-  end
-  
-  node['splunk']['scripted_auth_files'].each do |auth_file|
-    cookbook_file "#{node['splunk']['server_home']}/#{node['splunk']['scripted_auth_directory']}/#{auth_file}" do
-      source "scripted_auth/#{auth_file}"
-      owner "root"
-      group "root"
-      mode "0755"
-      action :create
-    end
-  end
-  
-  node['splunk']['scripted_auth_templates'].each do |auth_templ|
-    template "#{node['splunk']['server_home']}/#{node['splunk']['scripted_auth_directory']}/#{auth_templ}" do
-      source "server/scripted_auth/#{auth_templ}.erb"
-      owner "root"
-      group "root"
-      mode "0744"
-      variables(
-        :user => scripted_auth_creds['user'],
-        :password => scripted_auth_creds['password']
-      )
-    end
-  end
-end
-
 static_server_configs.flatten.each do |cfg|
   template "#{node['splunk']['server_home']}/etc/system/local/#{cfg}.conf" do
    	source "server/#{cfg}.conf.erb"
@@ -273,6 +209,10 @@ directory "#{node['splunk']['server_home']}/etc/users/admin/search/local/data/ui
   mode "0755"
   action :create
   recursive true
+end
+
+link "/var/log/splunk" do
+  to "#{node['splunk']['server_home']}/var/log/splunk"
 end
 
 if node['splunk']['deploy_dashboards'] == true

@@ -9,10 +9,10 @@ disabled = 0
 index = default
 crcSalt = <SOURCE>
 
-<% if node['splunk']['ssl_forwarding'] == true -%>
 [SSL]
 password = <% if node['splunk']['inputsSSLPass'] != nil -%><%= node['splunk']['inputsSSLPass']%><% else -%><%= node['splunk']['ssl_forwarding_pass'] %><% end -%>
 requireClientCert = false
+<% if node['splunk']['ssl_forwarding'] == true -%>
 rootCA = <%= node['splunk']['server_home']%>/etc/auth/forwarders/<%= node['splunk']['ssl_forwarding_cacert'] %>
 serverCert = <%= node['splunk']['server_home']%>/etc/auth/forwarders/<%= node['splunk']['ssl_forwarding_servercert'] %>
 
